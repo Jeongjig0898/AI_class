@@ -1,14 +1,37 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>음성 지원 번역기</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div class="translator-container">
+        <h1>음성 지원 번역기</h1>
+        <div class="main-content">
+            <div class="textarea-container">
+                <textarea id="source-text" placeholder="번역할 텍스트를 입력하세요..."></textarea>
+            </div>
+            <div class="controls">
+                <select id="target-language">
+                    <option value="ko">한국어</option>
+                    <option value="en">영어</option>
+                    <option value="ja">일본어</option>
+                </select>
+                <button id="translate-btn">번역하기</button>
+            </div>
+            <div class="textarea-container result-container">
+                <textarea id="translated-text" placeholder="번역 결과" readonly></textarea>
+                <button id="listen-btn" aria-label="소리 듣기">
+                    <span class="material-symbols-outlined">
+                        volume_up
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
 </body>
 </html>
