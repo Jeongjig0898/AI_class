@@ -4,7 +4,7 @@
     --text-color: #333;
     --container-bg: #ffffff;
     --border-color: #d1d5da;
-    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 body {
@@ -22,7 +22,7 @@ body {
 
 .translator-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
     background-color: var(--container-bg);
     border-radius: 12px;
     box-shadow: var(--box-shadow);
@@ -36,24 +36,31 @@ h1 {
     margin: 0;
     font-size: 1.8rem;
     background-color: #e9eff8;
+    letter-spacing: 1px;
 }
 
 .main-content {
     padding: 1.5rem;
 }
 
+.io-container {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
 .textarea-container {
+    flex: 1;
     position: relative;
-    margin-bottom: 1rem;
 }
 
 textarea {
     width: 100%;
-    height: 150px;
+    height: 200px;
     padding: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-family: inherit;
     resize: vertical;
     box-sizing: border-box;
@@ -74,9 +81,18 @@ textarea:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+label {
+    font-weight: 500;
 }
 
 select, button {
@@ -84,14 +100,12 @@ select, button {
     font-size: 1rem;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    border: 1px solid transparent;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
 
 select {
-    border-color: var(--border-color);
-    flex-grow: 1;
+    border: 1px solid var(--border-color);
 }
 
 #translate-btn {
@@ -99,7 +113,7 @@ select {
     color: white;
     font-weight: bold;
     border: none;
-    flex-grow: 2;
+    min-width: 150px;
 }
 
 #translate-btn:hover {
@@ -108,10 +122,6 @@ select {
 
 #translate-btn:active {
     filter: brightness(0.9);
-}
-
-.result-container {
-    position: relative;
 }
 
 #listen-btn {
@@ -133,15 +143,22 @@ select {
 }
 
 .material-symbols-outlined {
-    font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     font-size: 28px;
 }
 
 /* Responsive Design */
+@media (max-width: 768px) {
+    .io-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    textarea {
+        height: 150px;
+    }
+}
+
 @media (max-width: 600px) {
     body {
         padding: 0;
@@ -153,17 +170,13 @@ select {
         min-height: 100vh;
     }
 
-    h1 {
-        font-size: 1.5rem;
-        padding: 1.2rem 1rem;
-    }
-
     .main-content {
         padding: 1rem;
     }
 
     .controls {
         flex-direction: column;
+        align-items: stretch;
     }
 
     select, button {

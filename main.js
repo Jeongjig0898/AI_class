@@ -7,11 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let voices = [];
 
-    // Web Speech API의 음성 목록을 비동기적으로 가져옵니다.
+    // Populates the voice list for the Web Speech API.
     function populateVoiceList() {
         voices = window.speechSynthesis.getVoices();
-        // 일부 브라우저에서는 'voiceschanged' 이벤트가 발생해야 음성 목록이 로드됩니다.
-        if (voices.length === 0) {
+        if (voices.length === 0 && window.speechSynthesis.onvoiceschanged !== undefined) {
             window.speechSynthesis.onvoiceschanged = () => {
                 voices = window.speechSynthesis.getVoices();
             };
@@ -20,33 +19,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateVoiceList();
 
-    // 번역 버튼 클릭 이벤트
+    // Event listener for the translate button
     translateBtn.addEventListener('click', async () => {
         const text = sourceText.value.trim();
         const lang = targetLanguage.value;
 
         if (!text) {
-            alert('번역할 텍스트를 입력하세요.');
+            alert('Please enter text to translate.');
             return;
         }
 
-        translatedText.value = '번역 중...';
+        translatedText.value = 'Translating...';
         try {
             const result = await translateText(text, lang);
             translatedText.value = result;
         } catch (error) {
             console.error('Error during translation:', error);
-            translatedText.value = '번역 실패. 콘솔을 확인하세요.';
+            translatedText.value = 'Translation failed. Please check the console.';
         }
     });
 
-    // 소리 듣기 버튼 클릭 이벤트
+    // Event listener for the listen button
     listenBtn.addEventListener('click', () => {
         const text = translatedText.value.trim();
         const lang = targetLanguage.value;
 
-        if (!text || text === '번역 중...' || text.startsWith('번역 실패')) {
-            alert('먼저 텍스트를 번역해주세요.');
+        if (!text || text === 'Translating...' || text.startsWith('Translation failed')) {
+            alert('Please translate text first.');
             return;
         }
 
@@ -54,28 +53,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /**
-     * Gemini API를 호출하여 텍스트를 번역하는 함수 (뼈대)
-     * @param {string} text - 번역할 텍스트
-     * @param {string} targetLang - 목표 언어 코드 (e.g., 'en', 'ko')
-     * @returns {Promise<string>} 번역된 텍스트
+     * Calls the Gemini API to detect the source language and translate the text.
+     * @param {string} text - The text to translate.
+     * @param {string} targetLang - The target language code (e.g., 'en', 'ko').
+     * @returns {Promise<string>} The translated text.
      */
     async function translateText(text, targetLang) {
-        // 중요: 아래 URL과 API_KEY를 실제 값으로 교체해야 합니다.
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_API_KEY`;
+        // IMPORTANT: Replace with your actual API key.
+        const API_KEY = 'YOUR_API_KEY';
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
 
-        // Gemini API에 맞는 언어 이름으로 변환합니다.
         const languageMap = {
             'en': 'English',
             'ko': 'Korean',
-            'ja': 'Japanese'
+            'ja': 'Japanese',
+            'zh': 'Chinese',
+            'es': 'Spanish',
+            'fr': 'French',
+            'de': 'German'
         };
         const targetLanguageName = languageMap[targetLang];
 
-        const prompt = `Translate the following text to ${targetLanguageName}: "${text}"`;
+        const prompt = `First, automatically detect the language of the following text. Then, translate it into ${targetLanguageName}. Return only the translated text, without any extra explanation or original text. The text to translate is: "${text}"`;
 
         /*
-        // --- 실제 API 호출 예시 ---
-        //
+        // --- Real API call example ---
         // try {
         //     const response = await fetch(API_URL, {
         //         method: 'POST',
@@ -90,60 +92,63 @@ document.addEventListener('DOMContentLoaded', () => {
         //     });
         //
         //     if (!response.ok) {
-        //         throw new Error(`API call failed with status: ${response.status}`);
+        //         const errorBody = await response.text();
+        //         throw new Error(`API call failed with status: ${response.status}. Body: ${errorBody}`);
         //     }
         //
         //     const data = await response.json();
-        //     // API 응답 구조에 따라 실제 번역된 텍스트를 추출해야 합니다.
         //     const translated = data.candidates[0].content.parts[0].text;
         //     return translated.trim();
         //
         // } catch (error) {
         //     console.error("API Error:", error);
-        //     throw error; // 오류를 상위로 전파
+        //     throw error;
         // }
         */
 
-        // --- 모의(Mock) API 응답 ---
-        // 실제 API를 구현하기 전까지 사용할 임시 코드입니다.
+        // --- Mock API response for demonstration ---
         return new Promise(resolve => {
             setTimeout(() => {
-                resolve(`[${targetLanguageName} 번역 결과] ${text}`);
+                resolve(`[Mock Translation to ${targetLanguageName}] ${text}`);
             }, 500);
         });
     }
 
     /**
-     * Web Speech API를 사용하여 텍스트를 음성으로 출력하는 함수
-     * @param {string} text - 읽을 텍스트
-     * @param {string} lang - 언어 코드 (e.g., 'en-US', 'ko-KR')
+     * Speaks the given text using the Web Speech API.
+     * @param {string} text - The text to speak.
+     * @param {string} lang - The language code (e.g., 'en', 'ko').
      */
     function speakText(text, lang) {
-        // 진행 중인 음성 출력이 있다면 중지
-        window.speechSynthesis.cancel();
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+        }
 
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // 언어 코드에 맞는 음성을 찾습니다. (예: 'en' -> 'en-US')
         const langCodeForSpeech = {
             'en': 'en-US',
             'ko': 'ko-KR',
-            'ja': 'ja-JP'
+            'ja': 'ja-JP',
+            'zh': 'zh-CN',
+            'es': 'es-ES',
+            'fr': 'fr-FR',
+            'de': 'de-DE'
         }[lang];
 
         utterance.lang = langCodeForSpeech;
 
-        // 해당 언어에 가장 적합한 음성을 찾아서 설정
+        // Find a specific voice for the language, if available.
         const specificVoice = voices.find(voice => voice.lang === langCodeForSpeech);
         if (specificVoice) {
             utterance.voice = specificVoice;
         } else {
-            console.warn(`'${langCodeForSpeech}'에 맞는 음성을 찾을 수 없습니다. 기본 음성을 사용합니다.`);
+            console.warn(`No specific voice found for '${langCodeForSpeech}'. Using default.`);
         }
         
         utterance.pitch = 1;
         utterance.rate = 1;
 
-        window.speechSynthesis.speak(utterance);
+        speechSynthesis.speak(utterance);
     }
 });
